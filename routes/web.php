@@ -18,7 +18,9 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/', [EventoController::class, 'index'])->name('eventos.index');
 Route::get('/eventos/{id}', [EventoController::class, 'show'])->name('eventos.show');
-Route::post('/eventos/{id}/perguntas', [PerguntaController::class, 'store'])->name('eventos.perguntas.store');
+Route::post('/eventos/{id}/perguntas', [PerguntaController::class, 'store'])
+    ->middleware('auth')
+    ->name('eventos.perguntas.store');
 
 
 Route::get('/register', [RegisterController::class, 'create'])->name('register.create');

@@ -13,6 +13,7 @@ class PerguntaController extends Controller
         Pergunta::create([
             ...$request->validated(),
             'user_id' => auth()->id(),
+            'is_public' => false,
         ]);
 
         return redirect()->route('eventos.show', $request->validated('evento_id'))

@@ -12,6 +12,13 @@ class Pergunta extends Model
 
     protected $fillable = ['evento_id', 'texto', 'status', 'user_id', 'is_public'];
 
+    protected function casts(): array
+    {
+        return [
+            'is_public' => 'boolean',
+        ];
+    }
+
     public function evento(): BelongsTo
     {
         return $this->belongsTo(Evento::class);
