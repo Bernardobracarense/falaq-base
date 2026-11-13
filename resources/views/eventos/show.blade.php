@@ -54,6 +54,14 @@
                         <span>Status: <span class="badge bg-success">{{ $pergunta->status }}</span></span>
                         <span>{{ $pergunta->created_at->format('d/m/Y H:i') }}</span>
                     </div>
+                    <form action="{{ route('perguntas.votar', $pergunta) }}" method="POST" class="mt-3">
+                        @csrf
+                        <button
+                            type="submit"
+                            title="Clique novamente para remover seu voto"
+                            class="{{ $votadas->contains($pergunta->id) ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800' }} px-3 py-1 rounded-md"
+                        >↑ {{ $pergunta->votos_count }}</button>
+                    </form>
                 </div>
             </div>
         @empty

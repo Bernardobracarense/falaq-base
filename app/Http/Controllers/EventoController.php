@@ -31,10 +31,16 @@ class EventoController extends Controller
         $perguntas = Pergunta::where('evento_id', $evento->id)
             ->where('is_public', true)
             ->with('user')
+            ->withCount('votos')
+            ->orderByDesc('votos_count')
             ->latest()
             ->paginate(10);
 
-        return view('eventos.show', compact('evento', 'perguntas'));
+        $votadas = auth()->check()
+            ? auth()->user()->perguntasVotadas()->pluck('perguntas.id')
+            : collect();
+
+        return view('eventos.show', compact('evento', 'perguntas', 'votadas'));
     }
 
     public function create()

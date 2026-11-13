@@ -19,4 +19,11 @@ class PerguntaController extends Controller
         return redirect()->route('eventos.show', $request->validated('evento_id'))
             ->with('sucesso', 'Sua pergunta foi enviada com sucesso!');
     }
+
+    public function votar(Pergunta $pergunta): RedirectResponse
+    {
+        $pergunta->votos()->toggle(auth()->id());
+
+        return back()->with('status', 'Seu voto foi atualizado.');
+    }
 }

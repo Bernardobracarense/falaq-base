@@ -21,6 +21,9 @@ Route::get('/eventos/{id}', [EventoController::class, 'show'])->name('eventos.sh
 Route::post('/eventos/{id}/perguntas', [PerguntaController::class, 'store'])
     ->middleware('auth')
     ->name('eventos.perguntas.store');
+Route::post('/perguntas/{pergunta}/votar', [PerguntaController::class, 'votar'])
+    ->middleware('auth')
+    ->name('perguntas.votar');
 
 
 Route::get('/register', [RegisterController::class, 'create'])->name('register.create');
