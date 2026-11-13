@@ -37,12 +37,18 @@ class EventoController extends Controller
         return view('eventos.show', compact('evento', 'perguntas'));
     }
 
-    public function create(){
+    public function create()
+    {
         return view('eventos.create');
     }
 
-    public function store(EventoFormRequest $request){
-        $evento = $request->user()->eventos()->create($request->validated());
+    public function store(EventoFormRequest $request)
+    {
+        $evento = Evento::create([
+            ...$request->validated(),
+            'user_id' => auth()->id(),
+        ]);
+
         return redirect()->route('eventos.show', $evento->id);
     }
 

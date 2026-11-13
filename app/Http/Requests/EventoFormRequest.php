@@ -2,34 +2,21 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\EventoStatus;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
 class EventoFormRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'titulo' => 'string|required', 
-            'descricao' => 'string', 
-            'data_evento' => 'date',
-            'user_id' => '',
-            'status' =>  new Enum(EventoStatus::class)
+            'titulo' => ['required', 'string', 'max:255'],
+            'descricao' => ['required', 'string'],
+            'data_evento' => ['nullable', 'date'],
         ];
     }
 }
