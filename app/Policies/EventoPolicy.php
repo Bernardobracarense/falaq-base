@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Evento;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class EventoPolicy
 {
@@ -36,6 +35,11 @@ class EventoPolicy
      * Determine whether the user can update the model.
      */
     public function update(User $user, Evento $evento): bool
+    {
+        return $user->id === $evento->user_id;
+    }
+
+    public function moderate(User $user, Evento $evento): bool
     {
         return $user->id === $evento->user_id;
     }

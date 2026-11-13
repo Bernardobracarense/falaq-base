@@ -14,6 +14,9 @@
             <button type="submit" class="btn {{ $evento->isPublicado() ? 'bg-red-600' : 'bg-green-600' }}">{{ $evento->isPublicado() ? "Encerrar" : "Publicar" }}</button>
         </form>
     @endcan
+    @can('moderate', $evento)
+        <a href="{{ route('moderacoes.index', $evento) }}" class="btn btn-secondary mb-3">Fila de moderação</a>
+    @endcan
     <div class="col-md-5 mb-4">
         <div class="card shadow-sm p-3">
             <h4 class="fw-bold mb-3">💬 Faça sua Pergunta</h4>
@@ -62,6 +65,24 @@
                             class="{{ $votadas->contains($pergunta->id) ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800' }} px-3 py-1 rounded-md"
                         >↑ {{ $pergunta->votos_count }}</button>
                     </form>
+                    <details class="mt-3">
+                        <summary class="text-sm cursor-pointer">Denunciar</summary>
+                        <form action="{{ route('moderacoes.store', $pergunta) }}" method="POST" class="mt-2">
+                            @csrf
+                            <label for="motivo-{{ $pergunta->id }}" class="form-label">Motivo</label>
+                            <textarea
+                                name="motivo"
+                                id="motivo-{{ $pergunta->id }}"
+                                rows="2"
+                                class="form-control @error('motivo') is-invalid @enderror"
+                                required
+                            >{{ old('motivo') }}</textarea>
+                            @error('motivo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <button type="submit" class="btn btn-outline-warning btn-sm mt-2">Enviar denúncia</button>
+                        </form>
+                    </details>
                 </div>
             </div>
         @empty
