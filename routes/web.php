@@ -4,6 +4,7 @@ use App\Http\Controllers\EventoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ModeracaoController;
 use App\Http\Controllers\PerguntaController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,8 @@ Route::post('/eventos/{id}/perguntas', [PerguntaController::class, 'store'])
 Route::post('/perguntas/{pergunta}/votar', [PerguntaController::class, 'votar'])
     ->middleware('auth')
     ->name('perguntas.votar');
+Route::get('/perfil/{username}/avatar', [PerfilController::class, 'buscarAvatar'])
+    ->name('perfil.avatar');
 
 
 Route::get('/register', [RegisterController::class, 'create'])->name('register.create');

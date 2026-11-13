@@ -45,7 +45,7 @@
     <div class="col-md-7">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold m-0">📋 Perguntas do Evento</h4>
-            <span class="text-secondary small">Total no Banco: {{ $evento->perguntas->count() }}</span>
+            <span class="text-secondary small">Total no Banco: {{ $perguntas->total() }}</span>
         </div>
 
         @forelse($perguntas as $pergunta)
@@ -53,18 +53,33 @@
                 <div class="card-body">
                     <p class="fs-5 mb-2 text-white">{{ $pergunta->texto }}</p>
                     <div class="d-flex justify-content-between align-items-center text-secondary small">
-                        <span>{{ $pergunta->user->name ?? 'Anônimo' }}</span>
+                        <span class="d-flex align-items-center gap-2">
+                            <img
+                                class="question-avatar d-none rounded-circle"
+                                width="32"
+                                height="32"
+                                alt=""
+                                data-username="{{ $pergunta->user->github_username ?? '' }}"
+                            >
+                            {{ $pergunta->user->name ?? 'Anônimo' }}
+                        </span>
                         <span>Status: <span class="badge bg-success">{{ $pergunta->status }}</span></span>
                         <span>{{ $pergunta->created_at->format('d/m/Y H:i') }}</span>
                     </div>
-                    <form action="{{ route('perguntas.votar', $pergunta) }}" method="POST" class="mt-3">
+                    <form
+                        action="{{ route('perguntas.votar', $pergunta) }}"
+                        method="POST"
+                        class="mt-3"
+                        onsubmit="event.preventDefault(); votarPergunta({{ $pergunta->id }}, this.querySelector('button')); return false;"
+                    >
                         @csrf
                         <button
                             type="submit"
                             title="Clique novamente para remover seu voto"
                             class="{{ $votadas->contains($pergunta->id) ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800' }} px-3 py-1 rounded-md"
-                        >↑ {{ $pergunta->votos_count }}</button>
+                        >↑ <span class="vote-count">{{ $pergunta->votos_count }}</span></button>
                     </form>
+                    <p class="vote-error text-danger small mt-1" data-vote-error role="status"></p>
                     <details class="mt-3">
                         <summary class="text-sm cursor-pointer">Denunciar</summary>
                         <form action="{{ route('moderacoes.store', $pergunta) }}" method="POST" class="mt-2">
@@ -97,4 +112,77 @@
         </div>
     </div>
 </div>
+
+<script>
+    function votarPergunta(perguntaId, buttonElement) {
+        const errorMessage = buttonElement.closest('form').parentElement.querySelector('[data-vote-error]');
+        errorMessage.textContent = '';
+
+        fetch(`/perguntas/${perguntaId}/votar`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+            .then(response => {
+                if (response.status === 401 || response.status === 419) {
+                    window.location.href = '/login';
+                    return null;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Não foi possível registrar o voto (${response.status}).`);
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                if (!data) {
+                    return;
+                }
+
+                buttonElement.querySelector('.vote-count').textContent = data.votos_count;
+                buttonElement.classList.toggle('bg-blue-600', data.votado);
+                buttonElement.classList.toggle('text-white', data.votado);
+                buttonElement.classList.toggle('bg-gray-200', !data.votado);
+                buttonElement.classList.toggle('text-gray-800', !data.votado);
+            })
+            .catch(error => {
+                console.error('Falha ao atualizar o voto.', error);
+                errorMessage.textContent = 'Não foi possível registrar seu voto. Tente novamente.';
+            });
+    }
+
+    document.querySelectorAll('img[data-username]').forEach(image => {
+        const username = image.dataset.username;
+        if (!username) {
+            return;
+        }
+
+        fetch(`/perfil/${encodeURIComponent(username)}/avatar`, {
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Falha ao buscar avatar (${response.status}).`);
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                if (!data.avatar) {
+                    throw new Error('A resposta de avatar não contém uma URL.');
+                }
+
+                image.src = data.avatar;
+                image.classList.remove('d-none');
+            })
+            .catch(error => {
+                console.error('Falha ao carregar o avatar.', error);
+                image.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}`;
+                image.classList.remove('d-none');
+            });
+    });
+</script>
 @endsection
