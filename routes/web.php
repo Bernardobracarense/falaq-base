@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PerguntaController;
 use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +18,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/', [EventoController::class, 'index'])->name('eventos.index');
 Route::get('/eventos/{id}', [EventoController::class, 'show'])->name('eventos.show');
-Route::post('/eventos/{id}/perguntas', [EventoController::class, 'storePergunta'])->name('eventos.perguntas.store');
+Route::post('/eventos/{id}/perguntas', [PerguntaController::class, 'store'])->name('eventos.perguntas.store');
 
 
 Route::get('/register', [RegisterController::class, 'create'])->name('register.create');
